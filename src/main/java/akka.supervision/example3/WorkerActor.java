@@ -1,0 +1,34 @@
+package akka.supervision.policies.example3;
+
+import akka.actor.ActorRef;
+import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+
+public class WorkerActor extends UntypedActor {
+	LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+	private int state = 0;
+
+	@Override
+	public void preStart() {
+		log.info("Starting WorkerActor instance hashcode # {}", this.hashCode());
+	}
+
+	public void onReceive(Object o) throws Exception {
+		if (o instanceof Integer) {
+			Integer value = (Integer) o;
+			state = value;
+			log.info("Received a message " + value);
+		} else if (o instanceof Result) {
+			getSender().tell(state, ActorRef.noSender());
+		} else {
+			throw new IllegalArgumentException("Wrong Argument");
+		}
+	}
+
+	@Override
+	public void postStop() {
+		log.info("Stopping WorkerActor instance hashcode # {}", this.hashCode());
+
+	}
+}
